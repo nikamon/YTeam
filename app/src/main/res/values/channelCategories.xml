@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="channelCategories">
+        <item>Default</item>
+        <item>Sport</item>
+        <item>Business</item>
+        <item>Games</item>
+        <item>Education</item>
+        <item>Other</item>
+    </array>
+</resources>
