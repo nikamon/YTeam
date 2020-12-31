@@ -109,6 +109,8 @@ public class NoGroupsActivity extends AppCompatActivity implements AuthCallBack 
             case 1:
                 if (result && AdditionalUserInfo.groupArrayList != null && AdditionalUserInfo.channelsArrayList != null && AdditionalUserInfo.groupArrayList.size() > 0 && AdditionalUserInfo.channelsArrayList.size() > 0) {
                     AdditionalUserInfo.CURRENT_GROUP_ID = AdditionalUserInfo.groupArrayList.get(0).ID;
+                    AdditionalUserInfo.CURRENT_GROUP = AdditionalUserInfo.groupArrayList.get(0);
+
                     CURRENT_ACTION = 0;
                     startActivity(new Intent(this, Home.class));
 
@@ -123,6 +125,8 @@ public class NoGroupsActivity extends AppCompatActivity implements AuthCallBack 
             case 2:
                 if (result && AdditionalUserInfo.groupArrayList.size() > 0) {
                     AdditionalUserInfo.CURRENT_GROUP_ID = AdditionalUserInfo.groupArrayList.get(0).ID;
+                    AdditionalUserInfo.CURRENT_GROUP = AdditionalUserInfo.groupArrayList.get(0);
+
                     CURRENT_ACTION = 1;
 
                     UserInfoController controller = new UserInfoController();
