@@ -23,6 +23,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.pusher.client.channel.User;
+
+import java.io.File;
 
 import by.hilum.yteam.API.AuthController;
 import by.hilum.yteam.API.ConnectionHandler;
@@ -32,6 +35,7 @@ import by.hilum.yteam.Activities.NoGroupsActivity;
 import by.hilum.yteam.Interface.AuthCallBack;
 import by.hilum.yteam.Models.UserInfo;
 import by.hilum.yteam.Support.Security.AdditionalUserInfo;
+import by.hilum.yteam.Support.Security.LocalStorageController;
 import by.hilum.yteam.Support.Security.MD5;
 
 public class MainActivity extends AppCompatActivity implements AuthCallBack {
@@ -48,10 +52,30 @@ public class MainActivity extends AppCompatActivity implements AuthCallBack {
         setContentView(R.layout.activity_main);
 
         //If we just reload dialog page
-        if (UserInfo.PASSWORD.length() > 1 && UserInfo.LOGIN.length() > 1) {
+        if ((UserInfo.PASSWORD.length() > 1 && UserInfo.LOGIN.length() > 1) || LocalStorageController.isPrefsAlive(this)) {
             //Re-auth
-            AuthController controller = new AuthController();
-            controller.Auth(UserInfo.LOGIN, UserInfo.PASSWORD, MainActivity.this, MainActivity.this);
+            if (UserInfo.LOGIN.length() > 1 && UserInfo.PASSWORD.length() > 1) {
+                //If current activity has login and password
+                AuthController controller = new AuthController();
+                controller.Auth(UserInfo.LOGIN, UserInfo.PASSWORD, MainActivity.this, MainActivity.this);
+                //Then Write Data to prefs
+                LocalStorageController.SaveData(this, UserInfo.LOGIN, UserInfo.PASSWORD);
+            }else{
+                //If file exists and activity don't know about user
+                String[] authData = LocalStorageController.GetData(this);
+                if(authData != null){
+                    //If there is auth data in file
+                    UserInfo.LOGIN = authData[0];
+                    UserInfo.PASSWORD = authData[1];
+
+                    AuthController controller = new AuthController();
+                    controller.Auth(UserInfo.LOGIN, UserInfo.PASSWORD, MainActivity.this, MainActivity.this);
+                }else{
+                    Toast.makeText(MainActivity.this, "Password was not store, u mast re-login", Toast.LENGTH_SHORT).show();
+                    LocalStorageController.ClearStorage(this);
+                    startActivity(new Intent(MainActivity.this, MainActivity.class));
+                }
+            }
         } else {
             final ConstraintLayout[] currentlayout = {null};
 
@@ -324,6 +348,8 @@ public class MainActivity extends AppCompatActivity implements AuthCallBack {
             switch (CURRENT_API_CALL) {
                 case 0:
                     //Запрашиваем инфу про группы
+                    LocalStorageController.SaveData(this, UserInfo.LOGIN, UserInfo.PASSWORD);
+
                     UserInfoController controller = new UserInfoController();
                     controller.GetGroups(this, this);
                     CURRENT_API_CALL = 1;
@@ -359,6 +385,7 @@ public class MainActivity extends AppCompatActivity implements AuthCallBack {
 
                             Dialog dialog = new AlertDialog.Builder(this)
                                     .setTitle("Choose Group to Join")
+                                    .setCancelable(false)
                                     .setItems(names, (dialogInterface, i) -> {
                                         AdditionalUserInfo.CURRENT_GROUP = AdditionalUserInfo.groupArrayList.get(i);
                                         AdditionalUserInfo.CURRENT_GROUP_ID = AdditionalUserInfo.groupArrayList.get(i).ID;

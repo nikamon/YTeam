@@ -18,6 +18,7 @@ import by.hilum.yteam.Activities.NoGroupsActivity;
 import by.hilum.yteam.MainActivity;
 import by.hilum.yteam.R;
 import by.hilum.yteam.Support.Security.AdditionalUserInfo;
+import by.hilum.yteam.Support.Security.LocalStorageController;
 
 public class SettingsFragment extends Fragment {
 
@@ -84,6 +85,8 @@ public class SettingsFragment extends Fragment {
                             .setMessage("You will be redirected to the login page")
                             .setPositiveButton("Yes", (dialogInterface, i13) -> {
                                 AdditionalUserInfo.ClearStorage();
+                                LocalStorageController.ClearStorage(getContext());
+
                                 startActivity(new Intent(getActivity(), MainActivity.class));
                                 getActivity().finish();
                             })
